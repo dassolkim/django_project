@@ -3,12 +3,14 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, DetailView
 
 from .serializers import HelloSerializer
 from rest_framework.parsers import JSONParser
 
 from .models import HelloWorld
+
+
 # Create your views here.
 
 def hello_world(request):
@@ -26,11 +28,13 @@ def hello_world(request):
         return render(request, 'accountapp/hello_world.html',
                       context={'hello_world_list': hello_world_list})
 
+
 def hello_object_list(request):
     if request.method == 'GET':
         ho = HelloWorld.objects.all()
         serializer = HelloSerializer(ho, many=True)
         return JsonResponse(serializer.data, safe=False)
+
 
 # Class Based View, 상당히 간편하고 직관적
 class AccountCreateView(CreateView):
@@ -40,3 +44,9 @@ class AccountCreateView(CreateView):
     # reverse_lazy는 class형 view에서 사용
     success_url = reverse_lazy('accountapp:hello_world')
     template_name = 'accountapp/create.html'
+
+
+class AccountDetailView(DetailView):
+    model = User
+    context_object_name = 'target_user'
+    template_name = 'accountapp/detail.html'
