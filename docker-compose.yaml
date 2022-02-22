@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_compose
+    ports:
+      - "1800:80/tcp"
+    volumes:
+    - django-media:/data/media
+    - django-static:/data/static
+    - /home/dskim/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - web
+    networks:
+      - nginx-django-compose
+  web:
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+    image: django_project_test:5
+    container_name: django_container_gunicorn
+#    entrypoint: ["bash", "-c"]
+    command: bash -c "python manage.py migrate  --settings=pinterest.settings.deploy && gunicorn pinterest.wsgi --env DJANGO_SETTINGS_MODULE=pinterest.settings.deploy --bind 0.0.0.0:8000"
+    expose:
+      - "8000"
+    volumes:
+      - django-media:/home/django_project/media
+      - django-static:/home/django_project/static
+    networks:
+      - nginx-django-compose
+  db:
+    image: mariadb:10.5
+    container_name: mariadb_compose
+    environment:
+      - MARIADB_ROOT_PASSWORD=sasa8600
+      - MARIADB_DATABASE=django
+      - MARIADB_USER=django
+      - MARIADB_PASSWORD=dskim123
+    volumes:
+      - django-mariadb:/var/lib/mysql
+    networks:
+      - nginx-django-compose
+volumes:
+  django-media:
+  django-static:
+  django-mariadb:
+
+networks:
+  nginx-django-compose:
+    driver: bridge
+#  django:
+#    container_name: django_project_test:5
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#      volumes:
+#      - django-media:/home/django_project/media
+#      - django-static:/home/django_project/static
+

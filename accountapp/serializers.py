@@ -6,3 +6,9 @@ class HelloSerializer(serializers.Serializer):
 
     def list(self):
         return HelloWorld.object.all()
+
+
+# class HelloSerializerF(serializers.Serializer):
+#     class Meta:
+#         model = HelloWorld
+#         fields = ['text']

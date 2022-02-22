@@ -6,6 +6,9 @@ from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .decorators import account_ownership_required
 from .forms import AccountUpdateForm
@@ -42,6 +45,15 @@ def hello_object_list(request):
         serializer = HelloSerializer(ho, many=True)
         return JsonResponse(serializer.data, safe=False)
 
+class HelloList(APIView):
+    def get(self, request):
+        query = HelloWorld.objects.all()
+        serializer = HelloSerializer(query, many=True)
+        return Response(serializer.data)
+
+class HelloListViewset(viewsets.ModelViewSet):
+    query = HelloWorld.objects.all()
+    serializer_class = HelloSerializer()
 
 # Class Based View, 상당히 간편하고 직관적
 class AccountCreateView(CreateView):
